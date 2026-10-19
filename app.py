@@ -33,6 +33,12 @@ INFO_CLASES = {
     "trash": ("Basura no reciclable", "🗑️", "basura general"),
     "other": ("No parece un residuo", "🚫", "no corresponde a ningún contenedor de reciclaje"),
 }
+# nombres cortos para los gráficos (los largos se cortan en el eje)
+NOMBRE_GRAFICO = {"trash": "Basura", "other": "Otro (no residuo)"}
+
+
+def etiqueta_grafico(clase):
+    return NOMBRE_GRAFICO.get(clase) or INFO_CLASES.get(clase, (clase,))[0]
 
 # ---------------------------------------------------------------- estilo
 st.markdown(
@@ -234,7 +240,7 @@ with pestana_app:
 
             st.markdown("**Probabilidad de cada clase**")
             st.bar_chart(
-                {INFO_CLASES.get(c, (c,))[0]: p for c, p in probs.items()},
+                {etiqueta_grafico(c): p for c, p in probs.items()},
                 horizontal=True,
                 color="#2e7d32",
             )
@@ -266,7 +272,7 @@ with pestana_modelo:
         c3.metric("Imágenes de prueba", metricas["n_test"])
         st.markdown("**Recall por clase** (qué porcentaje de cada material detecta el modelo)")
         st.bar_chart(
-            {INFO_CLASES.get(c, (c,))[0]: v for c, v in metricas["recall_por_clase"].items()},
+            {etiqueta_grafico(c): v for c, v in metricas["recall_por_clase"].items()},
             horizontal=True,
             color="#2e7d32",
         )
