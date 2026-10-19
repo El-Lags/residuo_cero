@@ -1,0 +1,18 @@
+{
+  "accuracy": 0.8792710706150342,
+  "accuracy_balanceada": 0.8808049142495037,
+  "n_test": 439,
+  "recall_por_clase": {
+    "cardboard": 0.9,
+    "glass": 0.8421052631578947,
+    "metal": 0.9344262295081968,
+    "other": 0.95,
+    "paper": 0.8764044943820225,
+    "plastic": 0.8055555555555556,
+    "trash": 0.8571428571428571
+  },
+  "clip_accuracy": 0.5079726651480638,
+  "clip_accuracy_balanceada": 0.4635542189201041,
+  "otro_zapatos_nunca_vistos": 1.0,
+  "otro_categorias_nunca_vistas": 0.75
+}
