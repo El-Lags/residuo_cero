@@ -139,6 +139,21 @@ st.markdown(
     [data-testid="stSidebar"] * {color: #fff !important;}
     [data-testid="stSidebar"] hr {border-color: rgba(255,255,255,.35);}
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {opacity: 1;}
+    .lat-logo {font-size: 3.4rem; line-height: 1; margin-top: .4rem;}
+    .lat-titulo {font-size: 1.9rem; font-weight: 800; line-height: 1.1; margin: .2rem 0 .5rem;}
+    .lat-frase {font-size: 1.02rem; line-height: 1.45; opacity: .95;}
+    .lat-seccion {font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+                  margin: 1.7rem 0 .7rem; opacity: .85;}
+    .paso {display: flex; gap: .8rem; align-items: center; background: rgba(255,255,255,.16);
+           border: 1px solid rgba(255,255,255,.28); border-radius: 18px; padding: .75rem .9rem; margin-bottom: .6rem;
+           font-size: .95rem; line-height: 1.35;}
+    .paso-num {flex-shrink: 0; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: #fff;
+               color: #0b6e4f !important; font-weight: 800; display: flex; align-items: center; justify-content: center;}
+    .tip {background: rgba(255,255,255,.12); border-radius: 999px; padding: .4rem .9rem; margin-bottom: .45rem;
+          font-size: .93rem;}
+    .bin {display: flex; align-items: center; gap: .65rem; margin-bottom: .5rem; font-size: .95rem;}
+    .punto {width: 1rem; height: 1rem; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.85);}
+    .lat-pie {margin-top: 1.8rem; font-size: .78rem; line-height: 1.4; opacity: .8;}
     </style>
     """,
     unsafe_allow_html=True,
@@ -242,18 +257,25 @@ Reglas:
 
 # ---------------------------------------------------------------- barra lateral
 with st.sidebar:
-    st.markdown("## ♻️ Residuo Cero")
-    st.write("Sube la foto de un residuo y la IA te dice **de qué material es** y **dónde reciclarlo**.")
-    st.markdown("---")
-    st.markdown("### Cómo funciona")
     st.markdown(
-        "1. 📷 Subes una imagen\n"
-        "2. 🧠 EfficientNet-B0 la clasifica\n"
-        "3. 📊 Ves la confianza de cada clase\n"
-        "4. 💬 Gemini te da una recomendación"
+        '<div class="lat-logo">♻️</div><div class="lat-titulo">Residuo Cero</div>'
+        '<div class="lat-frase">¿No sabes dónde botar algo? Sácale una foto y te lo decimos.</div>'
+        '<div class="lat-seccion">¿Cómo funciona?</div>'
+        '<div class="paso"><span class="paso-num">1</span><div><b>Sube una foto</b><br>de lo que quieres botar.</div></div>'
+        '<div class="paso"><span class="paso-num">2</span><div><b>La IA lo mira</b><br>y te dice de qué material es.</div></div>'
+        '<div class="paso"><span class="paso-num">3</span><div><b>Te decimos dónde va</b><br>y, si quieres, cómo dejarlo listo.</div></div>'
+        '<div class="lat-seccion">Para una buena foto</div>'
+        '<div class="tip">☝️ Un solo objeto a la vez</div>'
+        '<div class="tip">⬜ Con fondo liso, si puedes</div>'
+        '<div class="tip">💡 Con buena luz y de cerca</div>'
+        '<div class="lat-seccion">¿A qué contenedor va?</div>'
+        '<div class="bin"><span class="punto" style="background:#3B82F6"></span>Azul: papel y cartón</div>'
+        '<div class="bin"><span class="punto" style="background:#FACC15"></span>Amarillo: latas y plásticos</div>'
+        '<div class="bin"><span class="punto" style="background:#22C55E"></span>Verde: vidrio</div>'
+        '<div class="bin"><span class="punto" style="background:#9CA3AF"></span>Gris: basura común</div>'
+        '<div class="lat-pie">Prototipo educativo · Proyecto del ramo IA Generativa para la Gestión Industrial, UDD.</div>',
+        unsafe_allow_html=True,
     )
-    st.markdown("---")
-    st.caption("Modelo: EfficientNet-B0 (timm) ajustado con TrashNet · Proyecto del ramo IA Generativa para la Gestión Industrial, UDD.")
 
 # ---------------------------------------------------------------- encabezado
 st.markdown(
