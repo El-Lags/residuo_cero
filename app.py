@@ -210,11 +210,12 @@ def pedir_recomendacion(clase, confianza):
     modelo_llm = secretos.get("GEMINI_MODEL") or os.environ.get("GEMINI_MODEL", "gemini-flash-lite-latest")
 
     nombre, _, contenedor = INFO_CLASES.get(clase, (clase, "", "según normativa local"))
+    destino = contenedor.split(" (")[0]    # sin el paréntesis, que nombra otros materiales (ej. «papel y cartón»)
     prompt = f"""Eres un asistente educativo sobre reciclaje domiciliario en Chile.
 Un modelo de visión clasificó la foto de un residuo así:
 - Clase detectada: {nombre}
 - Confianza del modelo: {confianza:.0%}
-- Destino habitual: {contenedor}
+- Destino habitual: {destino}
 
 Responde en español, con un máximo de 120 palabras, usando estas secciones:
 1. Cómo preparar el residuo antes de reciclarlo.
@@ -224,7 +225,8 @@ Responde en español, con un máximo de 120 palabras, usando estas secciones:
 Reglas:
 - No saludes ni te presentes: empieza directamente con la sección 1.
 - Háblale solo de reciclaje y manejo de residuos; si algo no corresponde, no lo inventes.
-- {"La confianza es BAJA: empieza diciendo que la clasificación es incierta y pide al usuario verificar el material a simple vista o consultar la norma local antes de decidir." if confianza < UMBRAL_CONFIANZA else "Si el material podría ser otro, sugiere verificarlo."}
+- Habla únicamente de {nombre}: no menciones otros materiales ni otros tipos de residuo, ni siquiera como comparación o ejemplo.
+- {"La confianza es BAJA: empieza diciendo que la clasificación es incierta y pide al usuario verificar el material a simple vista o consultar la norma local antes de decidir, sin nombrar otros materiales." if confianza < UMBRAL_CONFIANZA else "No cuestiones la clasificación: responde sobre este material."}
 - Es información educativa: no reemplaza las indicaciones de tu municipalidad ni de un punto limpio."""
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo_llm}:generateContent"
@@ -321,10 +323,13 @@ with pestana_app:
         ejemplo = st.selectbox("…o prueba con un ejemplo", ["—"] + ejemplos)
 
         imagen = None
+        id_imagen = None                      # identifica la imagen para no mezclar recomendaciones entre fotos
         if archivo is not None:
             imagen = Image.open(archivo)
+            id_imagen = f"subida:{getattr(archivo, 'file_id', archivo.name)}"
         elif ejemplo != "—":
             imagen = Image.open(os.path.join(CARPETA_EJEMPLOS, ejemplo))
+            id_imagen = f"ejemplo:{ejemplo}"
         if imagen is not None:
             st.image(imagen, caption="Imagen a clasificar", width="stretch")
 
@@ -368,11 +373,12 @@ with pestana_app:
             if clase != "other":                       # si no es un residuo, no hay nada que recomendar
                 st.markdown("---")
                 st.subheader("3. Recomendación con IA")
+                recomendaciones = st.session_state.setdefault("recomendaciones", {})   # {id de imagen: texto}
                 if st.button("💬 Generar recomendación", type="primary"):
                     with st.spinner("Consultando a Gemini…"):
-                        st.session_state["recomendacion"] = pedir_recomendacion(clase, confianza)
-                if "recomendacion" in st.session_state:
-                    st.markdown(st.session_state["recomendacion"])
+                        recomendaciones[id_imagen] = pedir_recomendacion(clase, confianza)
+                if id_imagen in recomendaciones:       # solo se muestra la de la imagen que está en pantalla
+                    st.markdown(recomendaciones[id_imagen])
                     st.caption("Generado por IA. Es orientación educativa y puede contener errores.")
 
 # ---------------------------------------------------------------- pestaña 2: sobre el modelo
