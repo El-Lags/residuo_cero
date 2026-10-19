@@ -40,17 +40,105 @@ NOMBRE_GRAFICO = {"trash": "Basura", "other": "Otro (no residuo)"}
 def etiqueta_grafico(clase):
     return NOMBRE_GRAFICO.get(clase) or INFO_CLASES.get(clase, (clase,))[0]
 
+
+# un color por material, para la tarjeta de resultado y las barras
+COLOR_CLASE = {
+    "cardboard": "#FB8C00",
+    "glass": "#14B8A6",
+    "metal": "#6366F1",
+    "paper": "#3B82F6",
+    "plastic": "#F59E0B",
+    "trash": "#EF4444",
+    "other": "#A855F7",
+}
+
+
+def barras_html(valores, formato):
+    """Barras horizontales de colores (valores entre 0 y 1), ordenadas de mayor a menor."""
+    filas = []
+    for clase, v in sorted(valores.items(), key=lambda par: -par[1]):
+        color = COLOR_CLASE.get(clase, "#2e7d32")
+        icono = INFO_CLASES.get(clase, ("", "❓", ""))[1]
+        filas.append(
+            f'<div class="fila"><div class="fila-nombre">{icono} {etiqueta_grafico(clase)}</div>'
+            f'<div class="pista"><div class="relleno" style="width:{v * 100 if v >= 0.005 else 0:.1f}%;background:{color}"></div></div>'
+            f'<div class="fila-valor">{formato(v)}</div></div>'
+        )
+    return '<div class="barras">' + "".join(filas) + "</div>"
+
+
 # ---------------------------------------------------------------- estilo
 st.markdown(
     """
     <style>
-    .titulo {font-size: 2.4rem; font-weight: 800; color: #1b5e20; margin-bottom: 0;}
-    .subtitulo {color: #4e6b50; margin-top: 0; font-size: 1.05rem;}
-    .tarjeta {background: #ffffff; border: 1px solid #c8e6c9; border-left: 6px solid #2e7d32;
-              border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.8rem;}
-    .clase {font-size: 1.8rem; font-weight: 700; color: #1b5e20;}
-    .aviso {background: #fff8e1; border-left: 6px solid #f9a825; border-radius: 8px;
-            padding: 0.7rem 1rem; margin: 0.6rem 0;}
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+    html, body, [class*="css"], .stMarkdown, button {font-family: 'Poppins', 'Segoe UI', sans-serif;}
+    .stApp {background: linear-gradient(180deg, #ecfff3 0%, #e6f7ff 55%, #f6efff 100%);}
+    .block-container {padding-top: 4.2rem;}
+
+    /* banner principal */
+    .hero {background: radial-gradient(circle at 92% 18%, rgba(255,255,255,.28) 0, rgba(255,255,255,0) 32%),
+                       radial-gradient(circle at 6% 110%, rgba(255,255,255,.22) 0, rgba(255,255,255,0) 38%),
+                       linear-gradient(120deg, #00c853 0%, #00bfa5 48%, #2979ff 100%);
+           border-radius: 28px; padding: 2.2rem 2.6rem; color: #fff; margin-bottom: 1rem;
+           box-shadow: 0 14px 34px rgba(0, 150, 110, .30);}
+    .hero-titulo {font-size: 3rem; font-weight: 800; line-height: 1.1; letter-spacing: -.5px;}
+    .hero-sub {font-size: 1.15rem; margin: .5rem 0 1.1rem; max-width: 46rem; opacity: .96;}
+    .pill {display: inline-block; background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.55);
+           border-radius: 999px; padding: .32rem .95rem; margin: 0 .5rem .4rem 0; font-size: .92rem; font-weight: 600;}
+    .aviso {background: #fff7d6; border: 1px solid #ffe08a; border-radius: 16px; padding: .75rem 1.1rem;
+            margin: .4rem 0 1.2rem; color: #6b4e00;}
+
+    /* títulos de sección */
+    h2, h3 {color: #0b6e4f !important; font-weight: 700 !important;}
+
+    /* tarjeta de resultado */
+    .tarjeta {display: flex; align-items: center; gap: 1.2rem; background: #fff; border-radius: 24px;
+              padding: 1.3rem 1.5rem; margin: .3rem 0 1rem; border-left: 10px solid var(--c);
+              background: linear-gradient(135deg, color-mix(in srgb, var(--c) 16%, #fff) 0%, #fff 70%);
+              box-shadow: 0 10px 26px rgba(0, 0, 0, .10);}
+    .tarjeta-icono {font-size: 3.2rem; width: 5.2rem; height: 5.2rem; display: flex; align-items: center;
+                    justify-content: center; background: #fff; border-radius: 50%; flex-shrink: 0;
+                    box-shadow: 0 4px 14px rgba(0, 0, 0, .12);}
+    .clase {font-size: 1.9rem; font-weight: 800; color: #1f2937; line-height: 1.15;}
+    .chip {display: inline-block; background: var(--c); color: #fff; border-radius: 999px;
+           padding: .22rem .9rem; margin: .45rem 0 .35rem; font-weight: 700; font-size: .95rem;}
+    .destino {color: #4b5563; font-size: .98rem;}
+
+    /* barras de colores */
+    .barras {margin: .4rem 0 1.3rem;}
+    .fila {display: flex; align-items: center; gap: .8rem; margin: .5rem 0;}
+    .fila-nombre {width: 10.5rem; font-weight: 600; color: #1f2937; font-size: .95rem;}
+    .pista {flex: 1; background: rgba(15, 23, 42, .08); border-radius: 999px; height: .85rem; overflow: hidden;}
+    .relleno {height: 100%; border-radius: 999px;}
+    .fila-valor {width: 4.2rem; text-align: right; font-weight: 700; color: #1f2937; font-size: .95rem;}
+
+    /* tarjetas de métricas */
+    [data-testid="stMetric"] {background: #fff; border-radius: 20px; padding: 1rem 1.3rem;
+                              border-top: 6px solid #00c853; box-shadow: 0 8px 22px rgba(0, 0, 0, .08);}
+    [data-testid="stMetricValue"] {color: #0b6e4f; font-weight: 800;}
+
+    /* pestañas */
+    [role="tab"] p, button[data-baseweb="tab"] p {font-size: 1.15rem; font-weight: 600;}
+    [role="tab"][aria-selected="true"] p, button[data-baseweb="tab"][aria-selected="true"] p {color: #0b6e4f;}
+    .react-aria-SelectionIndicator {background-color: #00c853 !important; height: 4px !important; border-radius: 4px;}
+    div[data-baseweb="tab-highlight"] {background-color: #00c853 !important; height: 4px; border-radius: 4px;}
+
+    /* botón principal */
+    .stButton > button[kind="primary"] {background: linear-gradient(120deg, #00c853, #00b0ff); color: #fff;
+        border: none; border-radius: 999px; padding: .65rem 1.7rem; font-weight: 700; font-size: 1.02rem;
+        box-shadow: 0 8px 20px rgba(0, 176, 255, .35); transition: transform .15s, box-shadow .15s;}
+    .stButton > button[kind="primary"]:hover {transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0, 176, 255, .45);}
+
+    /* subida de archivo e imágenes */
+    [data-testid="stFileUploader"] section {border: 2px dashed #00c853; border-radius: 20px; background: rgba(255,255,255,.75);}
+    [data-testid="stImage"] img {border-radius: 20px; box-shadow: 0 8px 22px rgba(0, 0, 0, .12);}
+
+    /* barra lateral */
+    [data-testid="stSidebar"] {background: linear-gradient(190deg, #006e4f 0%, #00897b 55%, #1565c0 100%);}
+    [data-testid="stSidebar"] * {color: #fff !important;}
+    [data-testid="stSidebar"] hr {border-color: rgba(255,255,255,.35);}
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {opacity: 1;}
     </style>
     """,
     unsafe_allow_html=True,
@@ -168,8 +256,13 @@ with st.sidebar:
     st.caption("Modelo: EfficientNet-B0 (timm) ajustado con TrashNet · Proyecto del ramo IA Generativa para la Gestión Industrial, UDD.")
 
 # ---------------------------------------------------------------- encabezado
-st.markdown('<p class="titulo">♻️ Residuo Cero</p>', unsafe_allow_html=True)
-st.markdown('<p class="subtitulo">Clasifica residuos con visión por computador y recibe una guía de reciclaje generada por IA.</p>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="hero"><div class="hero-titulo">♻️ Residuo Cero</div>'
+    '<div class="hero-sub">Clasifica residuos con visión por computador y recibe una guía de reciclaje generada por IA.</div>'
+    '<span class="pill">📷 Visión por computador</span><span class="pill">🧠 EfficientNet-B0</span>'
+    '<span class="pill">💬 Guía con Gemini</span></div>',
+    unsafe_allow_html=True,
+)
 st.markdown(
     '<div class="aviso">🎓 <b>Prototipo educativo.</b> Los resultados pueden equivocarse; '
     'ante la duda, consulta las indicaciones de tu municipalidad o punto limpio.</div>',
@@ -216,9 +309,11 @@ with pestana_app:
             nombre, icono, contenedor = INFO_CLASES.get(clase, (clase, "❓", "—"))
 
             st.markdown(
-                f'<div class="tarjeta"><div class="clase">{icono} {nombre}</div>'
-                f"Confianza de <b>esta imagen</b>: <b>{confianza:.1%}</b><br>"
-                f"Destino habitual: {contenedor}</div>",
+                f'<div class="tarjeta" style="--c:{COLOR_CLASE.get(clase, "#2e7d32")}">'
+                f'<div class="tarjeta-icono">{icono}</div><div>'
+                f'<div class="clase">{nombre}</div>'
+                f'<span class="chip">Confianza de esta imagen: {confianza:.1%}</span>'
+                f'<div class="destino">Destino habitual: {contenedor}</div></div></div>',
                 unsafe_allow_html=True,
             )
             if confianza < UMBRAL_CONFIANZA:
@@ -239,11 +334,7 @@ with pestana_app:
                 )
 
             st.markdown("**Probabilidad de cada clase**")
-            st.bar_chart(
-                {etiqueta_grafico(c): p for c, p in probs.items()},
-                horizontal=True,
-                color="#2e7d32",
-            )
+            st.markdown(barras_html(probs, lambda v: f"{v:.1%}"), unsafe_allow_html=True)
 
             if clase != "other":                       # si no es un residuo, no hay nada que recomendar
                 st.markdown("---")
@@ -271,11 +362,7 @@ with pestana_modelo:
         c2.metric("Accuracy balanceada", f"{metricas['accuracy_balanceada']:.1%}")
         c3.metric("Imágenes de prueba", metricas["n_test"])
         st.markdown("**Recall por clase** (qué porcentaje de cada material detecta el modelo)")
-        st.bar_chart(
-            {etiqueta_grafico(c): v for c, v in metricas["recall_por_clase"].items()},
-            horizontal=True,
-            color="#2e7d32",
-        )
+        st.markdown(barras_html(metricas["recall_por_clase"], lambda v: f"{v:.0%}"), unsafe_allow_html=True)
         st.markdown(
             f"**Línea base:** CLIP sin entrenar obtiene {metricas['clip_accuracy']:.1%} de accuracy "
             "con las mismas imágenes de prueba."
