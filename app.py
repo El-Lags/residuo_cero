@@ -153,7 +153,8 @@ st.markdown(
           font-size: .93rem;}
     .bin {display: flex; align-items: center; gap: .65rem; margin-bottom: .5rem; font-size: .95rem;}
     .punto {width: 1rem; height: 1rem; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.85);}
-    .lat-pie {margin-top: 1.8rem; font-size: .78rem; line-height: 1.4; opacity: .8;}
+    .lat-tec {font-size: .82rem; line-height: 1.5; opacity: .85; border-top: 1px solid rgba(255,255,255,.3); padding-top: .7rem;}
+    .lat-pie {margin-top: 1.2rem; font-size: .78rem; line-height: 1.4; opacity: .8;}
     </style>
     """,
     unsafe_allow_html=True,
@@ -256,6 +257,9 @@ Reglas:
 
 
 # ---------------------------------------------------------------- barra lateral
+metricas_lateral = cargar_metricas()
+exactitud = f"<br>Accuracy en test: {metricas_lateral['accuracy']:.1%}" if metricas_lateral else ""
+
 with st.sidebar:
     st.markdown(
         '<div class="lat-logo">♻️</div><div class="lat-titulo">Residuo Cero</div>'
@@ -273,6 +277,9 @@ with st.sidebar:
         '<div class="bin"><span class="punto" style="background:#FACC15"></span>Amarillo: latas y plásticos</div>'
         '<div class="bin"><span class="punto" style="background:#22C55E"></span>Verde: vidrio</div>'
         '<div class="bin"><span class="punto" style="background:#9CA3AF"></span>Gris: basura común</div>'
+        '<div class="lat-seccion">Detalles técnicos</div>'
+        '<div class="lat-tec">Modelo: EfficientNet-B0 (timm) ajustado con TrashNet y una clase «otro» '
+        f'(ImageNet y Fashion Products).{exactitud}<br>Recomendaciones: Google Gemini.</div>'
         '<div class="lat-pie">Prototipo educativo · Proyecto del ramo IA Generativa para la Gestión Industrial, UDD.</div>',
         unsafe_allow_html=True,
     )
@@ -280,9 +287,9 @@ with st.sidebar:
 # ---------------------------------------------------------------- encabezado
 st.markdown(
     '<div class="hero"><div class="hero-titulo">♻️ Residuo Cero</div>'
-    '<div class="hero-sub">Clasifica residuos con visión por computador y recibe una guía de reciclaje generada por IA.</div>'
-    '<span class="pill">📷 Visión por computador</span><span class="pill">🧠 EfficientNet-B0</span>'
-    '<span class="pill">💬 Guía con Gemini</span></div>',
+    '<div class="hero-sub">Sube la foto de un residuo y descubre de qué material es y en qué contenedor va.</div>'
+    '<span class="pill">📷 Sube una foto</span><span class="pill">🧠 La IA identifica el material</span>'
+    '<span class="pill">💬 Consejos para reciclar</span></div>',
     unsafe_allow_html=True,
 )
 st.markdown(
